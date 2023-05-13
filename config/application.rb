@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "boot"
 
 require "rails"
@@ -20,6 +22,7 @@ Bundler.require(*Rails.groups)
 
 module Campaignz
   class Application < Rails::Application
+
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
 
@@ -46,5 +49,6 @@ module Campaignz
     # GZip all responses
     # TODO: remove if using nginx in deployment
     config.middleware.use Rack::Deflater
+
   end
 end

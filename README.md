@@ -1,24 +1,46 @@
-# README
+# Campaignz
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+notes here
 
-Things you may want to cover:
+## Prerequisites
 
-* Ruby version
+Make sure you have the following installed on your system:
 
-* System dependencies
+- Ruby `3.1.2`
+- Rails `7.0.4`
+- Bundler `2.3.15`
+- PostgreSQL
+  - Ensure you have the [pg gem](https://github.com/ged/ruby-pg) installed
+    successfully before continuing (unless you want to run in docker container)
+- Docker (optional)
+- Docker-Compose (optional)
 
-* Configuration
+## Getting Started
 
-* Database creation
+Clone this repo
 
-* Database initialization
+```shell
+$ git clone https://github.com/YOUR-USERNAME/RAILS-APP.git path/to/app
+$ cd path/to/app
+$ bin/setup
+```
 
-* How to run the test suite
+### Start the App
 
-* Services (job queues, cache servers, search engines, etc.)
+```shell
+$ bin/rails s
+```
 
-* Deployment instructions
+If you have docker and docker-compose installed, you can run the following instead;
 
-* ...
+```shell
+$ docker-compose up --build --renew-anon-volumes
+```
+
+go to `localhost:3000`
+
+## Running Tests
+
+```shell
+$ bundle exec rspec spec
+```

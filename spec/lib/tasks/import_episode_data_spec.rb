@@ -53,7 +53,7 @@ RSpec.describe Tasks::ImportEpisodeData, type: :task do
           candidate_verity = an_object_having_attributes(name: "Verity")
 
           expect do
-            rake_task.invoke("valid/sm/votes.txt")
+            rake_task.invoke("valid/m/votes.txt")
           end.to change(Campaign, :all)
             .from([])
             .to(

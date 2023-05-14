@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "data_parser"
+
 module Tasks
   class ImportEpisodeData
 
@@ -16,7 +18,7 @@ module Tasks
 
           handle_task_run_errors!
 
-          extract_data.each do |campaign_data|
+          parsed_data.each do |campaign_data|
             campaign = Campaign.find_or_create_by!(name: campaign_data[:campaign])
             campaign.update!(total_votes: campaign_data[:total_votes])
 
@@ -27,7 +29,7 @@ module Tasks
                 candidate: candidate,
                 campaign: campaign,
                 score: candidate_data[:validity_during],
-                invalid_votes: candidate_data.values_at(:validity_pre, :validity_post).reduce(&:+)
+                invalid_votes: candidate_data[:invalid_votes]
               )
             end
           end
@@ -46,69 +48,23 @@ module Tasks
     end
 
     def data_file_exists?
-      File.exist?(data_file)
+      File.exist?(data_file_path)
     end
 
     def valid_data_file_type?
       VALID_DATA_FILE_TYPES.include?(File.extname(filename))
     end
 
-    def data_file
+    def data_file_path
       Rails.root.join("#{data_assets_dir}/#{filename}")
     end
 
     def data_assets_dir
-      "#{Rails.env.test? ? 'spec/fixtures' : 'lib/assets'}/vote_data"
+      "#{Rails.env.test? ? 'spec/fixtures/files' : 'lib/assets'}/vote_data"
     end
 
-    # TODO: This method is too long and needs to be refactored
-    def extract_data
-      campaigns = {}
-
-      data_file.open.read.encode!("UTF-8", "ISO-8859-1").each_line do |line|
-        campaign_match = line.match(/Campaign:([^ ]+)/)
-        choice_match = line.match(/Choice:([^ ]+)/)
-        validity_match = line.match(/Validity:([^ ]+)/)
-
-        next unless campaign_match && choice_match && validity_match
-
-        campaign = campaign_match[1]
-        choice = choice_match[1]
-        validity = validity_match[1]
-
-        campaigns[campaign] ||= {
-          campaign: campaign,
-          total_votes: 0,
-          candidates: {}
-        }
-
-        campaign_data = campaigns[campaign]
-        candidate_data = campaign_data[:candidates][choice] ||= {
-          name: choice,
-          total_votes: 0,
-          validity_pre: 0,
-          validity_post: 0,
-          validity_during: 0
-        }
-
-        campaign_data[:total_votes] += 1
-        candidate_data[:total_votes] += 1
-
-        case validity
-        when "pre"
-          candidate_data[:validity_pre] += 1
-        when "post"
-          candidate_data[:validity_post] += 1
-        when "during"
-          candidate_data[:validity_during] += 1
-        end
-      end
-
-      campaigns.values.map do |campaign_data|
-        candidates = campaign_data[:candidates].values
-        campaign_data[:candidates] = candidates
-        campaign_data
-      end
+    def parsed_data
+      DataParser.call(data_file_path)
     end
 
   end

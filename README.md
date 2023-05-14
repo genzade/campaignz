@@ -1,5 +1,7 @@
 # Campaignz
 
+<img src="/campaignz_recording.gif?raw=true">
+
 ## The Task
 
 Create a rails application to show the results for TV SMS voting campaigns,

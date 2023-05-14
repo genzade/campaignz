@@ -1,46 +1,42 @@
 ---
 version: "3.7"
-
 services:
   app:
     build:
       context: .
-
     command: bin/rails server --port 3000 --binding 0.0.0.0
-    entrypoint: "./bin/docker-entrypoint"
-    image: campaignz_app
-    ports:
-      - "127.0.0.1:3000:3000"
-      - "127.0.0.1:7000:7000"
-      - "127.0.0.1:5432:5432"
     depends_on:
       - db
+    entrypoint: "./bin/docker-entrypoint"
     environment:
       DATABASE_HOST: "db"
+      DATABASE_PASSWORD: "password"
       POSTGRES_USER: "postgres"
       # # uncomment for production
       # RAILS_ENV: production
       RAILS_LOG_TO_STDOUT: 1
       RAILS_SERVE_STATIC_FILES: 1
       REDIS_URL: redis://redis:6379/1
-
+    image: campaignz_app
     networks:
       - default
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:7000:7000"
+      - "127.0.0.1:5432:5432"
     volumes:
       - .:/campaignz_app
-
   db:
     environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
       # See: https://github.com/docker-library/postgres/pull/658. Alternatively,
-      # POSTGRES_HOST_AUTH_METHOD: trust
-      DATABASE_HOST: "db"
-      POSTGRES_USER: "postgres"
+      # DATABASE_HOST: "db"
+      # POSTGRES_USER: "postgres"
     image: postgres:15
     ports:
-      - "54320:5432"
+      - "5432:5432"
     restart: always
     volumes:
       - db_data:/var/lib/postgresql/data
-
 volumes:
   db_data:

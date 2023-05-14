@@ -322,6 +322,16 @@ $ cd path/to/app
 $ bin/setup
 ```
 
+Run the rake task to import all the data from the provide votes.txt
+
+```sh
+$ bin/rake import_episode_data:run\[votes.txt\] --trace
+```
+
+Note: The above rake task uses the file `lib/assets/vote_data/votes.txt`, if you
+want to import a different valid log file you must add it to `lib/assets/vote_data/`
+directory and run the above rake command with your filename.
+
 ### Start the App
 
 ```shell

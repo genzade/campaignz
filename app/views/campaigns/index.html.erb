@@ -1,0 +1,43 @@
+<div class="w-full">
+  <h1 class="font-bold text-4xl">Campaigns</h1>
+  <% if campaigns.any? %>
+
+    <div class="w-full p-7 border-gray-100">
+      <table class="table-auto w-full">
+        <thead class="border-b-2 border-gray-300">
+          <tr>
+            <th class="w-2/5 p-4 text-left tracking-wider">
+              Name
+            </th>
+            <th class="w-2/5 p-4 text-left tracking-wider">
+              Valid Votes
+            </th>
+            <th class="w-1/5 p-4 text-left tracking-wider">
+              Created at
+            </th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-300">
+          <% campaigns.each do |campaign| %>
+            <tr class="hover:bg-gray-100">
+              <td class="w-2/5 p-4">
+                <%= link_to campaign.name, campaign_campaign_episodes_path(campaign.id) %>
+              </td>
+              <td class="w-2/5 p-4">
+                <%= pluralize(campaign.total_votes, "vote") %>
+              </td>
+              <td class="w-1/5 p-4">
+                <span class="text-sm text-gray-500">
+                  <%= campaign.created_at.strftime("%B %d, %Y") %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p>No campaigns found</p>
+  <% end %>
+</div>

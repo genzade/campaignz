@@ -7,5 +7,7 @@ Rails.application.routes.draw do
   root "campaigns#index"
 
   # Defines the campaigns resource routes
-  resources :campaigns, only: %i[index]
+  resources :campaigns, only: %i[index] do
+    resources :campaign_episodes, only: %i[index], controller: "campaigns/campaign_episodes"
+  end
 end

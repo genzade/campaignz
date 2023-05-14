@@ -1,0 +1,45 @@
+<div class="w-full">
+  <h1 class="font-bold text-4xl"><%= campaign_name %></h1>
+
+  <div class="w-full p-7 border-gray-100">
+    <table class="table-auto w-full">
+      <thead class="border-b-2 border-gray-300">
+        <tr>
+          <th class="w-1/4 p-4 text-left tracking-wider">
+            Candidate Name
+          </th>
+          <th class="w-1/4 p-4 text-left tracking-wider">
+            Valid Votes
+          </th>
+          <th class="w-1/4 p-4 text-left tracking-wider">
+            Invalid Votes
+          </th>
+          <th class="w-1/4 p-4 text-left tracking-wider">
+            Created at
+          </th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-gray-300">
+        <% @campaign_episodes.each do |campaign_episode| %>
+          <tr class="hover:bg-gray-100">
+            <td class="w-1/4 p-4">
+              <%= campaign_episode.candidate.name %>
+            </td>
+            <td class="w-1/4 p-4">
+              <%= pluralize(campaign_episode.score, "vote") %>
+            </td>
+            <td class="w-1/4 p-4">
+              <%= pluralize(campaign_episode.invalid_votes, "invalid vote") %>
+            </td>
+            <td class="w-1/4 p-4">
+              <span class="text-sm text-gray-500">
+                <%= campaign_episode.created_at.strftime("%B %d, %Y") %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

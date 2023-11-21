@@ -153,6 +153,129 @@ RSpec.describe Tasks::ImportEpisodeData, type: :task do
           #   ).to_stdout
           # )
         end
+
+        context "when running the rake task more than once" do
+          # before do
+          #   rake_task.invoke("valid/m/votes.txt")
+          # end
+
+          it "only creates the data once, idempotent", :aggregate_failures do
+            campaign1 = an_object_having_attributes(name: "ssss_uk_01B", total_votes: 12)
+            campaign2 = an_object_having_attributes(name: "ssss_uk_02B", total_votes: 11)
+            campaign3 = an_object_having_attributes(name: "ssss_uk_02A", total_votes: 11)
+
+            candidate_antony = an_object_having_attributes(name: "Antony")
+            candidate_jane = an_object_having_attributes(name: "Jane")
+            candidate_leon = an_object_having_attributes(name: "Leon")
+            candidate_tupele = an_object_having_attributes(name: "Tupele")
+            candidate_gemma = an_object_having_attributes(name: "Gemma")
+            candidate_matthew = an_object_having_attributes(name: "Matthew")
+            candidate_verity = an_object_having_attributes(name: "Verity")
+
+            expect do
+              rake_task.invoke("valid/m/votes.txt")
+              rake_task.reenable
+              rake_task.invoke("valid/m/votes.txt")
+            end.to not_change { Campaign.all.reload }
+              .from(
+                a_collection_containing_exactly(campaign1, campaign2, campaign3)
+              )
+              .and(
+                not_change(Candidate, :all)
+                .from(
+                  a_collection_containing_exactly(
+                    candidate_antony, candidate_jane, candidate_leon, candidate_tupele,
+                    candidate_gemma, candidate_matthew, candidate_verity
+                  )
+                )
+              )
+              .and(
+                not_change(CampaignEpisode, :all)
+                .from(
+                  a_collection_containing_exactly(
+                    an_object_having_attributes(
+                      campaign: campaign1,
+                      candidate: candidate_antony,
+                      score: 1,
+                      invalid_votes: 0
+                    ),
+                    an_object_having_attributes(
+                      campaign: campaign1,
+                      candidate: candidate_leon,
+                      score: 1,
+                      invalid_votes: 2
+                    ),
+                    an_object_having_attributes(
+                      campaign: campaign1,
+                      candidate: candidate_tupele,
+                      score: 2,
+                      invalid_votes: 0
+                    ),
+                    an_object_having_attributes(
+                      campaign: campaign1,
+                      candidate: candidate_jane,
+                      score: 3,
+                      invalid_votes: 3
+                    ),
+                    an_object_having_attributes(
+                      campaign: campaign2,
+                      candidate: candidate_jane,
+                      score: 2,
+                      invalid_votes: 0
+                    ),
+                    an_object_having_attributes(
+                      campaign: campaign2,
+                      candidate: candidate_leon,
+                      score: 2,
+                      invalid_votes: 3
+                    ),
+                    an_object_having_attributes(
+                      campaign: campaign2,
+                      candidate: candidate_matthew,
+                      score: 3,
+                      invalid_votes: 1
+                    ),
+                    an_object_having_attributes(
+                      campaign: campaign3,
+                      candidate: candidate_verity,
+                      score: 3,
+                      invalid_votes: 1
+                    ),
+                    an_object_having_attributes(
+                      campaign: campaign3,
+                      candidate: candidate_leon,
+                      score: 1,
+                      invalid_votes: 0
+                    ),
+                    an_object_having_attributes(
+                      campaign: campaign3,
+                      candidate: candidate_antony,
+                      score: 2,
+                      invalid_votes: 1
+                    ),
+                    an_object_having_attributes(
+                      campaign: campaign3,
+                      candidate: candidate_gemma,
+                      score: 2,
+                      invalid_votes: 1
+                    )
+                  )
+                )
+              )
+
+            # expect do
+            #   rake_task.reenable
+
+            #   rake_task.invoke("valid/m/votes.txt")
+            # end.to not_change(Campaign, :count)
+            #   .and(
+            #     not_change(Candidate, :count)
+            #   )
+            #   .and(
+            #     not_change(CampaignEpisode, :count)
+            #   )
+          end
+        end
       end
     end
   end

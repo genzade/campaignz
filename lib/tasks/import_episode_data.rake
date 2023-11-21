@@ -18,19 +18,31 @@ module Tasks
 
           handle_task_run_errors!
 
-          parsed_data.each do |campaign_data|
-            campaign = Campaign.find_or_create_by!(name: campaign_data[:campaign])
-            campaign.update!(total_votes: campaign_data[:total_votes])
+          ActiveRecord::Base.transaction do
+            parsed_data.each do |campaign_data|
+              campaign = find_or_create_by_campaign(campaign_data[:campaign])
 
-            campaign_data[:candidates].each do |candidate_data|
-              candidate = Candidate.find_or_create_by!(name: candidate_data[:name])
+              campaign.update!(total_votes: campaign_data[:total_votes])
 
-              CampaignEpisode.create!(
-                candidate: candidate,
-                campaign: campaign,
-                score: candidate_data[:validity_during],
-                invalid_votes: candidate_data[:invalid_votes]
-              )
+              campaign_data[:candidates].each do |candidate_data|
+                candidate = find_or_create_by_candidate(candidate_data[:name])
+
+                # episode = CampaignEpisode.find_or_create_by!(
+                #   candidate: candidate,
+                #   campaign: campaign
+                # )
+
+                # episode.update!(
+                #   score: candidate_data[:validity_during],
+                #   invalid_votes: candidate_data[:invalid_votes]
+                # )
+                CampaignEpisode.create!(
+                  candidate: candidate,
+                  campaign: campaign,
+                  score: candidate_data[:validity_during],
+                  invalid_votes: candidate_data[:invalid_votes]
+                )
+              end
             end
           end
         end
@@ -40,6 +52,16 @@ module Tasks
     private
 
     attr_reader :filename
+
+    def find_or_create_by_campaign(name)
+      @campaign ||= {}
+      @campaign[name] ||= Campaign.find_or_create_by!(name: name)
+    end
+
+    def find_or_create_by_candidate(name)
+      @candidate ||= {}
+      @candidate[name] ||= Candidate.find_or_create_by!(name: name)
+    end
 
     def handle_task_run_errors!
       raise(ArgumentError, "filename not provided") if filename.blank?
